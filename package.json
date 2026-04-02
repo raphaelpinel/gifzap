@@ -1,0 +1,20 @@
+{
+  "name": "gifzap",
+  "version": "0.1.0",
+  "description": "Simple CLI utility for converting short videos into GIFs for GitHub repositories.",
+  "type": "module",
+  "bin": {
+    "gifzap": "./bin/gifzap.js"
+  },
+  "scripts": {
+    "convert": "node ./bin/gifzap.js",
+    "test:smoke": "node ./bin/gifzap.js --help"
+  },
+  "keywords": [
+    "gif",
+    "video",
+    "ffmpeg",
+    "github"
+  ],
+  "license": "MIT"
+}
