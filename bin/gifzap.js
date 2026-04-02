@@ -409,11 +409,11 @@ async function attachGifToReadme(output) {
   }
 
   const lines = existingContents.split("\n");
-  const titleIndex = lines.findIndex((line) => line.startsWith("# "));
+  const firstSectionIndex = lines.findIndex((line) => line.startsWith("## "));
   let nextContents;
 
-  if (titleIndex >= 0) {
-    lines.splice(titleIndex + 1, 0, "", imageLine);
+  if (firstSectionIndex >= 0) {
+    lines.splice(firstSectionIndex, 0, "", imageLine, "");
     nextContents = `${lines.join("\n").replace(/\n{3,}/g, "\n\n")}\n`;
   } else {
     const attachment = `\n\n${imageLine}\n`;
@@ -469,7 +469,7 @@ async function main() {
 
   args.push("-hide_banner", "-loglevel", "error");
 
-  if (options.overwrite) {
+  if (options.overwrite || options.replace) {
     args.push("-y");
   } else {
     args.push("-n");

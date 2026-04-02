@@ -34,7 +34,7 @@ With no input, `gifzap` looks for the first `.mp4` or `.mov` it can find in this
 
 You can add your own screenshots directory with `--screenshots-dir <path>` or by setting `SCREENSHOTS_DIR`.
 
-When it auto-detects a video, it writes the GIF into your current working directory as `demo.gif`. If that already exists, it uses `demo-2.gif`, `demo-3.gif`, and so on. With `--replace`, it updates the most recent existing `demo*.gif` instead. It also inserts a Markdown image reference right below the title in `README.md` in that repo if one exists. If you pass an explicit input file, it creates `<input>.gif` next to that source video unless you provide an output path.
+When it auto-detects a video, it writes the GIF into your current working directory as `demo.gif`. If that already exists, it uses `demo-2.gif`, `demo-3.gif`, and so on. With `--replace`, it updates the most recent existing `demo*.gif` instead. It also inserts a Markdown image reference after the intro text and before the first `##` section in `README.md` in that repo if one exists. If you pass an explicit input file, it creates `<input>.gif` next to that source video unless you provide an output path.
 
 ## Options
 
@@ -59,7 +59,7 @@ Convert the first matching recording from the repo or screenshots folder:
 gifzap
 ```
 
-That will create the GIF in the repo you are currently in and attach it just below the title in that repo's `README.md` when present.
+That will create the GIF in the repo you are currently in and attach it after the intro text, before the first `##` section in that repo's `README.md` when present.
 
 Use your screenshots folder explicitly:
 
@@ -114,3 +114,4 @@ gifzap demo.mp4 preview.gif --start 00:00:02 --duration 3
 - Use `--replace` when you want to keep reusing the same README GIF path
 - Start from a trimmed source clip when possible for the best results
 ![Screen Recording 2026-04-01 at 15.43.05](Screen Recording 2026-04-01 at 15.43.05.gif)
+
