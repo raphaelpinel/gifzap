@@ -42,8 +42,8 @@ When it auto-detects a video, it writes the GIF into your current working direct
 gifzap [input] [output] [options]
 ```
 
-- `--fps <number>`: frame rate for the GIF, default `12`
-- `--width <pixels>`: output width, default `800`
+- `--fps <number>`: frame rate for the GIF, default `10`
+- `--width <pixels>`: output width, default `640`
 - `--speed <number>`: playback speed multiplier, default `1`
 - `--start <time>`: start from a specific timestamp
 - `--duration <time>`: only convert part of the video
@@ -83,7 +83,7 @@ gifzap demo.mp4
 Speed up a long demo to make the GIF shorter:
 
 ```bash
-gifzap --speed 2 --width 640 --fps 10
+gifzap --speed 2 --width 720 --fps 12
 ```
 
 Replace the latest generated demo GIF instead of creating `demo-2.gif`:
@@ -95,7 +95,7 @@ gifzap --replace
 Create a smaller GIF for a README:
 
 ```bash
-gifzap demo.mp4 assets/demo.gif --width 640 --fps 10
+gifzap demo.mp4 assets/demo.gif --width 560 --fps 8
 ```
 
 Trim a short moment out of a recording:
@@ -107,9 +107,9 @@ gifzap demo.mp4 preview.gif --start 00:00:02 --duration 3
 ## Tips for GitHub repos
 
 - Keep clips short, usually `2` to `6` seconds
-- The defaults are `--width 800` and `--fps 12`
-- Use `--width 640` or `--width 720` to keep file size reasonable
-- Lower `--fps` to `8` or `10` if the GIF gets too large
+- The defaults are `--width 640` and `--fps 10`
+- Use `--width 560` for smaller files or `--width 720` for sharper UI demos
+- Lower `--fps` to `8` if the GIF gets too large
 - Use `--speed 1.5` or `--speed 2` to make long recordings easier to scan
 - Use `--replace` when you want to keep reusing the same README GIF path
 - Start from a trimmed source clip when possible for the best results

@@ -32,8 +32,8 @@ Arguments:
   output                Optional output path (defaults to <input>.gif)
 
 Options:
-  --fps <number>        GIF frame rate (default: 12)
-  --width <pixels>      Output width in pixels, keeping aspect ratio (default: 800)
+  --fps <number>        GIF frame rate (default: 10)
+  --width <pixels>      Output width in pixels, keeping aspect ratio (default: 640)
   --speed <number>      Playback speed multiplier (default: 1)
   --start <time>        Start time, e.g. 00:00:01.5
   --duration <time>     Duration to convert, e.g. 3 or 00:00:03
@@ -49,7 +49,7 @@ Examples:
   gifzap --speed 2
   gifzap --screenshots-dir ~/Screenshots
   gifzap demo.mp4
-  gifzap demo.mp4 assets/demo.gif --width 720 --fps 10
+  gifzap demo.mp4 assets/demo.gif --width 720 --fps 12
   gifzap demo.mp4 --start 00:00:01 --duration 2.5
 `);
 }
@@ -62,9 +62,9 @@ function fail(message, exitCode = 1) {
 function parseArgs(argv) {
   const positional = [];
   const options = {
-    fps: "12",
+    fps: "10",
     speed: "1",
-    width: "800",
+    width: "640",
     overwrite: false
   };
 
