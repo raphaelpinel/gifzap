@@ -1,8 +1,10 @@
 # gifzap
 
-Small CLI utility for turning a short video into a GIF that works well in GitHub repos, pull requests, and docs.
+Create optimized GIF demos for GitHub READMEs, pull requests, and docs from short videos.
 
 ![demo](demo.gif)
+
+Automatically inserts the generated GIF into your `README.md`.
 
 ## Requirements
 
@@ -104,7 +106,7 @@ Trim a short moment out of a recording:
 gifzap demo.mp4 preview.gif --start 00:00:02 --duration 3
 ```
 
-## Tips for GitHub repos
+## Best Practices
 
 - Keep clips short, usually `2` to `6` seconds
 - The defaults are `--width 640` and `--fps 10`
@@ -114,4 +116,3 @@ gifzap demo.mp4 preview.gif --start 00:00:02 --duration 3
 - Use `--replace` when you want to keep reusing the same README GIF path
 - Start from a trimmed source clip when possible for the best results
 ![Screen Recording 2026-04-01 at 15.43.05](Screen Recording 2026-04-01 at 15.43.05.gif)
-
