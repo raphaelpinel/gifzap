@@ -34,15 +34,19 @@ Arguments:
 Options:
   --fps <number>        GIF frame rate (default: 12)
   --width <pixels>      Output width in pixels, keeping aspect ratio (default: 800)
+  --speed <number>      Playback speed multiplier (default: 1)
   --start <time>        Start time, e.g. 00:00:01.5
   --duration <time>     Duration to convert, e.g. 3 or 00:00:03
   --screenshots-dir <path>
                         Extra folder to search for recent recordings
+  --replace             Replace the latest demo*.gif in the repo
   --overwrite           Replace the output file if it already exists
   -h, --help            Show this message
 
 Examples:
   gifzap
+  gifzap --replace
+  gifzap --speed 2
   gifzap --screenshots-dir ~/Screenshots
   gifzap demo.mp4
   gifzap demo.mp4 assets/demo.gif --width 720 --fps 10
@@ -59,6 +63,7 @@ function parseArgs(argv) {
   const positional = [];
   const options = {
     fps: "12",
+    speed: "1",
     width: "800",
     overwrite: false
   };
@@ -76,6 +81,11 @@ function parseArgs(argv) {
       continue;
     }
 
+    if (arg === "--replace") {
+      options.replace = true;
+      continue;
+    }
+
     if (arg.startsWith("--")) {
       const key = arg.slice(2);
       const value = argv[index + 1];
@@ -84,7 +94,7 @@ function parseArgs(argv) {
         fail(`Missing value for --${key}`);
       }
 
-      if (!["fps", "width", "start", "duration", "screenshots-dir"].includes(key)) {
+      if (!["fps", "width", "speed", "start", "duration", "screenshots-dir"].includes(key)) {
         fail(`Unknown option: ${arg}`);
       }
 
@@ -160,6 +170,27 @@ async function collectVideos(directory, recursive) {
   }
 
   return videos;
+}
+
+async function collectGifOutputs(directory) {
+  const entries = await readdir(directory, { withFileTypes: true });
+  const gifs = [];
+
+  for (const entry of entries) {
+    if (!entry.isFile()) {
+      continue;
+    }
+
+    if (!/^demo(?:-\d+)?\.gif$/i.test(entry.name)) {
+      continue;
+    }
+
+    const fullPath = join(directory, entry.name);
+    const details = await stat(fullPath);
+    gifs.push({ path: fullPath, modifiedMs: details.mtimeMs });
+  }
+
+  return gifs;
 }
 
 async function findReadmePath(directory) {
@@ -321,6 +352,33 @@ function run(command, args) {
   });
 }
 
+async function getDefaultOutputPath(overwrite) {
+  const baseName = "demo";
+  let index = 1;
+
+  while (true) {
+    const fileName = index === 1 ? `${baseName}.gif` : `${baseName}-${index}.gif`;
+    const candidate = resolve(process.cwd(), fileName);
+
+    if (overwrite || !(await pathExists(candidate))) {
+      return candidate;
+    }
+
+    index += 1;
+  }
+}
+
+async function getReplaceOutputPath() {
+  const candidates = await collectGifOutputs(process.cwd());
+
+  if (candidates.length === 0) {
+    return resolve(process.cwd(), "demo.gif");
+  }
+
+  candidates.sort((left, right) => right.modifiedMs - left.modifiedMs);
+  return candidates[0].path;
+}
+
 function toMarkdownPath(path) {
   return path.split(sep).join("/");
 }
@@ -344,16 +402,25 @@ async function attachGifToReadme(output) {
 
   const markdownPath = toMarkdownPath(relativeOutputPath);
   const existingContents = await readFile(readmePath, "utf8");
+  const imageLine = `![${basename(output, extname(output))}](${markdownPath})`;
 
-  if (existingContents.includes(`](${markdownPath})`)) {
+  if (existingContents.includes(imageLine)) {
     return;
   }
 
-  const altText = basename(output, extname(output));
-  const attachment = `\n\n![${altText}](${markdownPath})\n`;
-  const nextContents = existingContents.endsWith("\n")
-    ? `${existingContents}${attachment.trimStart()}`
-    : `${existingContents}${attachment}`;
+  const lines = existingContents.split("\n");
+  const titleIndex = lines.findIndex((line) => line.startsWith("# "));
+  let nextContents;
+
+  if (titleIndex >= 0) {
+    lines.splice(titleIndex + 1, 0, "", imageLine);
+    nextContents = `${lines.join("\n").replace(/\n{3,}/g, "\n\n")}\n`;
+  } else {
+    const attachment = `\n\n${imageLine}\n`;
+    nextContents = existingContents.endsWith("\n")
+      ? `${existingContents}${attachment.trimStart()}`
+      : `${existingContents}${attachment}`;
+  }
 
   await writeFile(readmePath, nextContents, "utf8");
   console.log(`Attached GIF to ${readmePath}`);
@@ -376,19 +443,21 @@ async function main() {
   await ensureReadable(input);
 
   const fps = validatePositiveNumber("fps", options.fps);
+  const speed = validatePositiveNumber("speed", options.speed);
   const width = Math.round(validatePositiveNumber("width", options.width));
 
   const inputExtension = extname(input);
   const inputBase = basename(input, inputExtension);
-  const output = resolve(
-    outputArg ??
-      join(
-        usingAutoDetectedInput ? process.cwd() : dirname(input),
-        `${inputBase}.gif`
-      )
-  );
+  const output = outputArg
+    ? resolve(outputArg)
+    : usingAutoDetectedInput
+      ? options.replace
+        ? await getReplaceOutputPath()
+        : await getDefaultOutputPath(options.overwrite)
+      : resolve(join(dirname(input), `${inputBase}.gif`));
 
   const filter = [
+    `setpts=${1 / speed}*PTS`,
     `fps=${fps}`,
     `scale=${width}:-1:flags=lanczos`,
     "split[s0][s1]",
@@ -397,6 +466,8 @@ async function main() {
   ].join(",");
 
   const args = [];
+
+  args.push("-hide_banner", "-loglevel", "error");
 
   if (options.overwrite) {
     args.push("-y");
