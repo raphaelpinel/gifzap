@@ -29,10 +29,11 @@ gifzap
 
 After `npm link`, `gifzap` is available as a command in any repo on your machine. It always uses the repo you run it from as the primary working directory, so running it inside a different repo will make that repo the primary place it looks for videos, where it writes the generated GIF, and which `README.md` it updates.
 
-With no input, `gifzap` looks for the first `.mp4` or `.mov` it can find in this order:
+With no input, `gifzap` looks for the latest `.mp4` or `.mov` it can find in this order:
 
 - the current repo directory, recursively
-- your macOS Screenshot app save location, if one is configured
+- the screenshots directory you provide with `--screenshots-dir` or `SCREENSHOTS_DIR`
+- on macOS, your Screenshot app save location, detected automatically when configured
 
 You can add your own screenshots directory with `--screenshots-dir <path>` or by setting `SCREENSHOTS_DIR`.
 
@@ -66,13 +67,13 @@ That will create the GIF in the repo you are currently in and attach it after th
 Use your screenshots folder explicitly:
 
 ```bash
-gifzap --screenshots-dir "/Users/your-name/Library/CloudStorage/OneDrive-Company/Screenshots"
+gifzap --screenshots-dir /path/to/screenshots
 ```
 
 Set it once in your shell:
 
 ```bash
-export SCREENSHOTS_DIR="/Users/your-name/Library/CloudStorage/OneDrive-Company/Screenshots"
+export SCREENSHOTS_DIR=/path/to/screenshots
 gifzap
 ```
 
